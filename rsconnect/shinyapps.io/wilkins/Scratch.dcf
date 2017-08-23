@@ -1,0 +1,11 @@
+name: Scratch
+title: Scratch
+account: wilkins
+server: shinyapps.io
+appId: 205915
+bundleId: 946330
+url: https://wilkins.shinyapps.io/Scratch/
+when: 1503101824.71777
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .RData|freqdata.csv|server.old|ui.old
