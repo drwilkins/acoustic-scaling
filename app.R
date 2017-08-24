@@ -1,12 +1,12 @@
-#not using plotly...doesn't support expressions in labels
-
 library(ggplot2);library(scales);require(ape);require(geiger)
 library(Cairo)   # For nicer ggplot2 output when deployed on Linux
 birds<-read.csv("freqdata.csv")
 birdtree<-read.tree("singletree.tre")
 fams<-sort(as.character(unique(birds$fam)))
 ui <- fluidPage(
-  titlePanel(h1("Exploring how vocal frequency scales with body size",style="font-family: 'Courier New';color: #444444;"),windowTitle="Bird Vocal Scaling"),
+  titlePanel(h1("Exploring how vocal frequency scales with body size",style="font-family: 'Courier New';color: #444444;",windowTitle="Bird Vocal Scaling")),
+  p("Each data point represents the average body mass and song pitch for a species (n=795 total species)",style="font-family: 'Courier New';color: #444444;"),
+  
   #modify CSS style 
   tags$head(
     tags$style(HTML("hr {border-top: 1px solid #444444;}"))),
@@ -101,7 +101,7 @@ output$phylogeny<-renderPlot({
    edgecols[which.edge(birdtree,as.character(birds$Taxon[which(birds$fam==input$highlight)]))]<-"#FF0F1B"
     }
   par(mar=c(0,0,2,0))
-  plot.phylo(birdtree,show.tip.label=F, root.edge=T,label.offset=3,edge.color=edgecols,main="Phylogeny")
+  plot.phylo(birdtree,show.tip.label=F, root.edge=T,label.offset=3,edge.color=edgecols,main="Phylogeny (The evolutionary family tree for these species)")
   #if something has been clicked, put a yellow tip label
  if(nrow(vals$clicked)>0){
   spprows<-match(vals$clickedspp,birdtree$tip.label)
