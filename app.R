@@ -1,11 +1,11 @@
-library(ggplot2);library(scales);require(ape);require(geiger)
-library(Cairo)   # For nicer ggplot2 output when deployed on Linux
+library(ggplot2);library(scales);require(ape);require(geiger);require(png)
+library(Cairo)  # For nicer ggplot2 output when deployed on Linux
 birds<-read.csv("freqdata.csv")
 birdtree<-read.tree("singletree.tre")
 fams<-sort(as.character(unique(birds$fam)))
 ui <- fluidPage(
-  titlePanel(h1("Exploring how vocal frequency scales with body size",style="font-family: 'Courier New';color: #444444;",windowTitle="Bird Vocal Scaling")),
-  p("Each data point represents the average body mass and song pitch for a species (n=795 total species)",style="font-family: 'Courier New';color: #444444;"),
+  titlePanel(windowTitle="Bird Vocal Scaling",h1("Exploring how vocal frequency scales with body size",style="font-family: 'Courier New';color: #444444;")),
+  p("Each data point represents the average body mass and song pitch for a different bird species (n=795 total species)",style="font-family: 'Courier New';color: #444444;"),
   
   #modify CSS style 
   tags$head(
@@ -13,7 +13,7 @@ ui <- fluidPage(
   hr(),
 #>User toggles
    fluidRow(style="background-color: #e3e3e1;",
-    column(1,radioButtons("axlab","Label Format:",c("Exponent"="exp","Integer"="int"))),
+    column(2,radioButtons("axlab","Label Format:",c("Exponent"="exp","Integer"="int"))),
     column(3,selectInput("highlight","Which family to highlight?",choices=c("none",fams),selected="none")),
      column(2,checkboxInput("mainline","Fit Overall Line?",FALSE),
        checkboxInput("famline","Fit Family Line?",FALSE),
@@ -23,7 +23,7 @@ ui <- fluidPage(
 #> Graphical Output 
    fluidRow(
       column(12,column(5,plotOutput("plot1",click="plot1click")), #main MTE plot
-      column(7,plotOutput("phylogeny"))) ),#output phylogeny; end fluidRow2 
+      column(6,plotOutput("phylogeny"))) ),#output phylogeny; end fluidRow2 
     fluidRow(
       column(6,
       h5("Selected Point(s):"),
@@ -95,18 +95,49 @@ clk})
 output$phylogeny<-renderPlot({
   if(input$phyl==T){
   edgecols<-rep("black",length(birdtree$edge))
-  #if family selected, make edges red
+  #if family selected, make edges red & add family pic
   if(input$highlight!="none"){
-    #find out which edges connect to the species in the family of interest
+    #find out which edges connect to the species in the family of interest & replace colors
    edgecols[which.edge(birdtree,as.character(birds$Taxon[which(birds$fam==input$highlight)]))]<-"#FF0F1B"
+   
+    ###Look up appropriate family pic
+    #Does pic exist for this fam?
+   
+   #Not run
+   #Which missing?
+   #unique(birds$family)[-which(unique(birds$family)%in%sapply(piclist,tools::file_path_sans_ext))]
+   
+    currfam<-as.character(birds$family[which(birds$fam==input$highlight[1])[1]])
+    piclist<-list.files("www/")
+    fampicindx<-match(currfam,sapply(piclist,tools::file_path_sans_ext))
+    if(!is.na(fampicindx)){
+      fampic<-readPNG(paste0("www/",piclist[fampicindx]))
+       aspect<-dim(fampic)[2]/dim(fampic)[1]
+       #if wider than tall, scale image to max width; else to max height
+        if(aspect>=1.5){
+          width=2
+          height=2/aspect
+          x1=.25
+        }else{x1=.5;height=1.5;width=1.5*aspect}
     }
+}#end family highlighting code
   par(mar=c(0,0,2,0))
-  plot.phylo(birdtree,show.tip.label=F, root.edge=T,label.offset=3,edge.color=edgecols,main="Phylogeny (The evolutionary family tree for these species)")
+  plot.phylo(birdtree,show.tip.label=F, root.edge=T,label.offset=3,edge.color=edgecols,main="Phylogeny (Evolutionary family tree)")
+  
+#### Highlight phylogeny tips of clicked points  
   #if something has been clicked, put a yellow tip label
  if(nrow(vals$clicked)>0){
   spprows<-match(vals$clickedspp,birdtree$tip.label)
   tiplabels(text="<",col="#E9CE2C",tip=spprows,adj=c(-.1,.5),bg="gray40",cex=2.)
  }else{tiplabels(text="",col="transparent",tip=NA,frame="none")}#don't add tiplabels if nothing clicked
+  
+    #plot family image when selected & pic exists
+  if(input$highlight!="none"&&!is.na(fampicindx)){
+     par(usr=c(0,10,0,10))#rescale plot device to add pic in a sensible way
+     rect(x1-.2,8.25-.2,x1+width+.2,8.25+height+.2,col="#FF0F1B",density=70)
+     rasterImage(fampic,x1,8.25,x1+width,8.25+height)
+    }#End fam pic generation
+  
   
 #if user didn't want the phylogeny (default), just plot blank
   }else{par(mar=c(0,0,2,0))
