@@ -12,7 +12,7 @@ ui <- fluidPage(
     tags$style(HTML("hr {border-top: 1px solid #444444;}"))),
   hr(),
 #>User toggles
-   fluidRow(style="background-color: #e3e3e1;height:105px;",
+   fluidRow(style="background-color: #e3e3e1;",
     column(1,radioButtons("axlab","Label Format:",c("Exponent"="exp","Integer"="int"))),
     column(3,selectInput("highlight","Which family to highlight?",choices=c("none",fams),selected="none")),
      column(2,checkboxInput("mainline","Fit Overall Line?",FALSE),
@@ -22,8 +22,8 @@ ui <- fluidPage(
 ##############
 #> Graphical Output 
    fluidRow(
-      column(12,column(5,plotOutput("plot1", height = 500,width=500,click="plot1click")), #main MTE plot
-      column(7,plotOutput("phylogeny",height=500,width=700))) ),#output phylogeny; end fluidRow2 
+      column(12,column(5,plotOutput("plot1",click="plot1click")), #main MTE plot
+      column(7,plotOutput("phylogeny"))) ),#output phylogeny; end fluidRow2 
     fluidRow(
       column(6,
       h5("Selected Point(s):"),
@@ -76,7 +76,7 @@ if(input$axlab=="exp"){
   #Add family trend line to selected family
   if(input$highlight!="none" & input$famline==T)
   {g2<-g2+geom_smooth(method="lm",data=highlighted,aes(x=log10mass,y=log10Hz),col="#FF0F1B",fill="#FF0F1B")}
-  return(g2)
+  return(g2+theme(aspect.ratio = 1))
   
     }) #end renderPlot
 
