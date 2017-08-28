@@ -22,8 +22,8 @@ ui <- fluidPage(
 ##############
 #> Graphical Output 
    fluidRow(
-      column(12,column(5,plotOutput("plot1",click="plot1click")), #main MTE plot
-      column(6,plotOutput("phylogeny"))) ),#output phylogeny; end fluidRow2 
+      column(12,column(6,plotOutput("plot1",click="plot1click",height="400px",width="400px")), #main MTE plot
+      column(6,plotOutput("phylogeny",width="400",height="400px"))) ),#output phylogeny; end fluidRow2 
     fluidRow(
       column(6,
       h5("Selected Point(s):"),
@@ -76,7 +76,14 @@ if(input$axlab=="exp"){
   #Add family trend line to selected family
   if(input$highlight!="none" & input$famline==T)
   {g2<-g2+geom_smooth(method="lm",data=highlighted,aes(x=log10mass,y=log10Hz),col="#FF0F1B",fill="#FF0F1B")}
-  return(g2+theme(aspect.ratio = 1))
+  
+  #*+*+ Add ManualLEGEND
+  legend_x_place<-max(birds$log10mass)-sd(birds$log10mass)*1.5
+  legend_y_place<-max(birds$log10Hz)+sd(birds$log10Hz)*.2
+  pnts<-data.frame(x=c(legend_x_place,legend_x_place),y=c(legend_y_place,legend_y_place-sd(birds$log10Hz)*.4),stringsAsFactors=F)
+  pnts$labels<-c("Clicked Point(s)","Chosen Family")
+  g3<-g2+theme(aspect.ratio = 1)+geom_point(data=pnts,aes(x=x,y=y),shape=c(16,5),size=3,col=c("#E9CE2C","#FF0F1B"))+annotate("text",x=pnts$x,y=pnts$y,label=pnts$labels,hjust=-.1)
+  return( g3 )
   
     }) #end renderPlot
 
@@ -104,19 +111,21 @@ output$phylogeny<-renderPlot({
     #Does pic exist for this fam?
    
    #Not run
-   #Which missing?
-   #unique(birds$family)[-which(unique(birds$family)%in%sapply(piclist,tools::file_path_sans_ext))]
    
     currfam<-as.character(birds$family[which(birds$fam==input$highlight[1])[1]])
     piclist<-list.files("www/")
+    
+    #******Which missing?
+   #unique(birds$family)[-which(unique(birds$family)%in%sapply(list.files("www/"),tools::file_path_sans_ext))]
+    
     fampicindx<-match(currfam,sapply(piclist,tools::file_path_sans_ext))
     if(!is.na(fampicindx)){
       fampic<-readPNG(paste0("www/",piclist[fampicindx]))
        aspect<-dim(fampic)[2]/dim(fampic)[1]
        #if wider than tall, scale image to max width; else to max height
-        if(aspect>=1.5){
-          width=2
-          height=2/aspect
+        if(aspect>=1.2){
+          width=1.5
+          height=1.5/aspect
           x1=.25
         }else{x1=.5;height=1.5;width=1.5*aspect}
     }
@@ -134,7 +143,7 @@ output$phylogeny<-renderPlot({
     #plot family image when selected & pic exists
   if(input$highlight!="none"&&!is.na(fampicindx)){
      par(usr=c(0,10,0,10))#rescale plot device to add pic in a sensible way
-     rect(x1-.2,8.25-.2,x1+width+.2,8.25+height+.2,col="#FF0F1B",density=70)
+     rect(x1-.2,8.25-.2,x1+width+.2,8.25+height+.2,col="#FF0F1B",density=100)
      rasterImage(fampic,x1,8.25,x1+width,8.25+height)
     }#End fam pic generation
   
