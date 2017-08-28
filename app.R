@@ -79,7 +79,7 @@ if(input$axlab=="exp"){
   
   #*+*+ Add ManualLEGEND
   legend_x_place<-max(birds$log10mass)-sd(birds$log10mass)*1.5
-  legend_y_place<-max(birds$log10Hz)+sd(birds$log10Hz)*.2
+  legend_y_place<-max(birds$log10Hz)+sd(birds$log10Hz)*.15
   pnts<-data.frame(x=c(legend_x_place,legend_x_place),y=c(legend_y_place,legend_y_place-sd(birds$log10Hz)*.4),stringsAsFactors=F)
   pnts$labels<-c("Clicked Point(s)","Chosen Family")
   g3<-g2+theme(aspect.ratio = 1)+geom_point(data=pnts,aes(x=x,y=y),shape=c(16,5),size=3,col=c("#E9CE2C","#FF0F1B"))+annotate("text",x=pnts$x,y=pnts$y,label=pnts$labels,hjust=-.1)
