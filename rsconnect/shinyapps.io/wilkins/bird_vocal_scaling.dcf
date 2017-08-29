@@ -1,0 +1,13 @@
+name: bird_vocal_scaling
+title: Bird Vocal Scaling
+username:
+account: wilkins
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 207409
+bundleId: 958223
+url: https://wilkins.shinyapps.io/bird_vocal_scaling/
+when: 1503980861.8161
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .RData
